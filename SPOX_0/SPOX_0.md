@@ -1,26 +1,26 @@
-#Suma w systemie pozycyjnym - długość
+# Suma w systemie pozycyjnym - długość
 
-##ZADANIE
+## ZADANIE
 Rozważmy ciąg C złożony z n liczb naturalnych. Wyznacz liczbę znaków sumy elementów ciągu C w ustalonym systemie pozycyjnym o podstawie d.
 Uwaga wyjątek! W systemie unarnym (jedynkowy system liczbowy) liczbę 0 reprezentujemy jako słowo puste.
 
-##WEJŚCIE
+## WEJŚCIE
 
 Wiersz zawierający liczby n i d oddzielone znakiem odstępu (kod ASCII 32) zakończony znakiem nowej linii (kod ASCII 10). Następnie wiersz opisujący elementy ciągu C oddzielone znakiem odstępu.
 
-##WYJŚCIE
+## WYJŚCIE
 
 Wiersz zakończony znakiem nowej linii, zawierający liczbę naturalną będąca rozwiązaniem zadania.
 Dodatkowo: wiersz zawierający liczbę kontrolną równą liczbie znaków właściwych wczytanych z wejścia (znak właściwy to każdy znak niebędący znakiem białym, tj. znak odstępu, znak nowej linii, znak tabulacji, oraz znakiem końca pliku, tj. EOF).
 
  
 
-##OGRANICZENIA
+## OGRANICZENIA
 
 Długość n ciągu wejściowego zawarta w przedziale od 0 do 10^7. Elementy ciągu C nie większe niż 10^9. Podstawa systemu pozycyjnego d ograniczona odpowiednio przez 1 i 10^9.
  
 
-##PRZYKŁAD 1
+## PRZYKŁAD 1
 
 wejście:
 
@@ -39,7 +39,7 @@ wyjście:
 Suma elementów ciągu to 0+1+2+3+4+5+6+7+8+9=45. Długość reprezentacji liczby 45 w systemie o podstawie 10 to 2.
 Dodatkowo z wejścia wczytano łącznie 14 znaków właściwych. */
 
-##PRZYKŁAD 2
+## PRZYKŁAD 2
 
 wejście:
 
@@ -53,7 +53,7 @@ wyjście:
 
 13
  
-##PRZYKŁAD 3
+## PRZYKŁAD 3
 
 wejście:
 
