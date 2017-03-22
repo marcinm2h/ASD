@@ -1,2 +1,6 @@
--Create makefile for testing each script
+-MAKEFILE:
+    *init
+    *build /.vscode folder
+    *mkdir /out
+
 -Delete "//TODO:" comments for spoj
