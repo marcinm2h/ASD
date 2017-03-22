@@ -12,20 +12,45 @@
 int current_number = 0;
 int sum = 0;
 int read_chars_count = 0;
+int base = 0;
 inline int get_next_number();
 inline int get_other_base_digits(int base);
+inline void set_base();
 
 int main() {
 
+    set_base();
     while (!feof(stdin))
     {
         current_number = get_next_number();
         sum = sum + current_number;
         current_number = 0;
     }
-    // printf("sum: %d, read_chars_count: %d\n", sum, read_chars_count);
-    printf("sum: %d\nread_chars_counts: %d\ndigits: %d\n", sum, read_chars_count, get_other_base_digits(2));
+    // printf("sum: %d\nread_chars_counts: %d\ndigits: %d\nbase: %d\n", sum, read_chars_count, get_other_base_digits(base), base);
+    printf("%d\n%d", get_other_base_digits(base), read_chars_count);
     return 0;
+}
+
+inline void set_base() {
+    register int input_char;
+    int is_at_base_start = 0;
+    while ((input_char = gc()) != '\n')
+    {
+        if (input_char >= '0' && input_char <= '9')
+        {
+            read_chars_count += 1;
+            if (is_at_base_start)
+            {
+                if (input_char >= '0' && input_char <= '9')
+                {
+                    base = (base << 1) + (base << 3) + (input_char - '0');
+                }
+            }
+        } else if (input_char == ' ')
+        {
+            is_at_base_start = 1;
+        }
+    }
 }
 
 inline int get_next_number() {
@@ -45,8 +70,8 @@ inline int get_next_number() {
 }
 
 inline int get_other_base_digits(int base) {
-    register int digit = 1;
-    register int number = sum;
+    register unsigned int digit = 1;
+    register double number = (double)sum;
 
     if (base == 0)
     {
