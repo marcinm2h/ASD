@@ -10,32 +10,33 @@
 //57 = 9 (nine - number)
 
 int current_number = 0;
-inline void get_next_number();
+inline void get_next_number(int input_char);
 
 int main() {
-    get_next_number();
-    printf("current_number: %d", current_number);
+
+    /* register -> przechowywanie zmiennej w rejestrze procesora
+    znacznie szybsze niż RAM - brak adresu - nie można zrobić pointera */
+    register int input_char;
+    while ((input_char = gc()) != EOF) {
+        get_next_number(input_char);
+        // printf("current_number: %d", current_number);
+    }
     
     return 0;
 }
 
-inline void get_next_number() {
-    /* register -> przechowywanie zmiennej w rejestrze procesora
-    znacznie szybsze niż RAM - brak adresu - nie można zrobić pointera */
-    register int c;
-    while ((c = gc()) != 'E') //TODO: for testing - change to EOF later
+inline void get_next_number(int input_char) {
+    if (input_char >= '0' && input_char <= '9')
     {
-        if (c >= '0' && c <= '9')
-        {
-            current_number = current_number * 10 + (c - '0'); //to samo co current_number * 10 + (c - '0')
-        }
-        else if (c == '\n')
-        {
-            //TODO: dummy just for testing locally -> remove later
-        }
-        else
-        { 
-            current_number = 0;
-        }
+        current_number = (current_number << 1) + (current_number << 3) + (input_char - '0'); // == current_number * 10 + (c - '0')
+        printf("current_number: %d", current_number);
+    }
+    else if (input_char == '\n')
+    {
+        //TODO: do testów lokalnych - do usunięcia później
+    }
+    else
+    { 
+        current_number = 0;
     }
 }
