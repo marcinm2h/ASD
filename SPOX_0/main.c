@@ -18,7 +18,8 @@ inline unsigned long get_next_number();
 inline unsigned long get_other_base_digits(unsigned long base);
 inline void set_base();
 
-int main() {
+int main()
+{
     set_base();
     while (!feof(stdin))
     {
@@ -31,7 +32,8 @@ int main() {
     return 0;
 }
 
-inline void set_base() {
+inline void set_base()
+{
     register unsigned int input_char;
     register unsigned int is_at_base_start = 0;
     while ((input_char = gc()) != '\n')
@@ -50,7 +52,8 @@ inline void set_base() {
     }
 }
 
-inline unsigned long get_next_number() {
+inline unsigned long get_next_number()
+{
     /* register -> przechowywanie zmiennej w rejestrze procesora
     znacznie szybsze niż RAM - brak adresu - nie można zrobić pointera  - nie można użyć w funkcjach */
     register unsigned int input_char;
@@ -65,7 +68,8 @@ inline unsigned long get_next_number() {
     return current_number;
 }
 
-inline unsigned long get_other_base_digits(unsigned long base) {
+inline unsigned long get_other_base_digits(unsigned long base)
+{
     register unsigned int digit = 1;
     register float number = (float)sum;
 
