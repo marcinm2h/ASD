@@ -1,6 +1,6 @@
 //Pseudokod
 
-main (array[]) {
+main (int [] array) {
     int prev = 0;
     int curr = 0;
 
