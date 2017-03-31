@@ -7,18 +7,22 @@ unsigned int is_eol = 0;
 int current_number = 0;
 int previous_number = 0;
 
-int max = 0;
-int min = 0;
-
 int read_chars = 0;
 int sum = 0;
 int max_length = 0;
 
+int max = -1;
+int min = -1;
+
 int current_sum = 0;
 int current_length = 0;
 
-int eq_len = 1;
+int eq_len = 0;
 int eq_val = 0;
+
+int is_start = 1;
+
+
 
 inline int get_next_number();
 inline int algorithm(int current_number);
@@ -37,8 +41,8 @@ int main()
         }
     }
 
-    // printf("Sum: %d read_chars: %d max_length: %d current_length: %d\n", sum, read_chars, max_length, current_length);
-    printf("%d %d\n%d", max_length, sum, read_chars);
+    printf("Sum: %d read_chars: %d max_length: %d current_length: %d\n", sum, read_chars, max_length, current_length);
+    // printf("%d %d\n%d", max_length, sum, read_chars);
     return 0;
 }
 
@@ -62,99 +66,92 @@ inline int get_next_number()
 
 inline int algorithm(int current_number)
 {
-    // printf("\ncurrent_number: %d, previous_number: %d\n", current_number, previous_number);
-    if (current_number > previous_number)
+    if (min = -1)
     {
-        if (current_number > max)
-        {
-            //rosnący
-            min = 0;
-            max = current_number;
-            current_length += 1;
-            current_sum += current_number;
-        }
-        else
-        {
-            //zmiana trendu
-            if (current_length > max_length)
-            {
-                max_length = current_length;
-                sum = current_sum;
-            }
-
-            //nowy ciąg
-            min = current_number;
-            max = current_number;
-            current_sum = current_number;
-            current_length = 1;
-
-            //dodać eq do current_length i sum
-            if (eq_len > 1)
-            {
-                //doliczenie długości stałego ciągu
-                current_sum += eq_len * eq_val;
-                current_length += eq_len;
-            }
-            else
-            {
-                //doliczenie poprzendiej liczby przy zmianie trendu
-                current_sum += previous_number;
-                current_length += 1;
-                min = previous_number;
-            }
-
-        }
-        eq_len = 1;
+        min = current_number;
     }
-    else if (current_number < previous_number)
+    if (max = -1)
     {
-        if (current_number < min)
-        {
-            //malejący
-            max = 0;
-            min = current_number;
-            current_length += 1;
-            current_sum += current_number;
-        }
-        else
-        {
-            //zmiana trendu
-            if (current_length > max_length)
-            {
-                max_length = current_length;
-                sum = current_sum;
-            }
+        max = current_number;
+    }
 
-            //nowy ciąg
-            min = current_number;
-            max = current_number;
-            current_sum = current_number;
-            current_length = 1;
-
-            //dodać eq do current_length i sum
-            if (eq_len)
-            {
-                //doliczenie długości stałego ciągu
-                current_sum += eq_len * eq_val;
-                current_length += eq_len;
-            }
-            else
-            {
-                //doliczenie poprzendiej liczby przy zmianie trendu
-                current_sum += previous_number;
-                current_length += 1;
-                max = previous_number;
-            }
-        }
-        eq_len = 1;
+    if (is_start)
+    {
+        current_length = 1;
+        current_sum = current_number;
+        is_start = 0;
     }
     else
     {
-        //current_number == previous_number
-        eq_len += 1;
-        eq_val = current_number;
-        current_length += 1;
-        current_sum += current_number;
+        if (current_number == 7)
+        {
+                printf("\n--->current_number: %d, min: %d, max: %d\n", current_number, min, max);
+        }
+        if (current_number > previous_number)
+        {
+            if (current_number > max)
+            {
+                //rosnący
+                max = current_number;
+                current_length += 1;
+                current_sum += current_number;
+            }
+            else
+            {
+                //zmiana trendu (na rosnący z malejącego)
+                max = current_number;
+                min = -1;
+                current_length = 1;
+                if (eq_len)
+                {
+                    current_length += eq_len;
+                    current_sum += (eq_len * eq_val);
+                    eq_len = 0;
+                }
+
+            }
+        }
+        else if (current_number < previous_number)
+        {
+            if (current_number < min)
+            {
+                //malejący
+                min = current_number;
+                current_length += 1;
+                current_sum += current_number;
+            }
+            else
+            {
+                //zmiana trendu (na malejący z rosnącego)
+                max = -1;
+                min = current_number;
+                current_length = 1;
+                if (eq_len)
+                {
+                    current_length += eq_len;
+                    current_sum += (eq_len * eq_val);
+                    eq_len = 0;
+                }
+
+            }
+        }
+        else
+        {
+            // current_number == previous_number
+            current_length += 1;
+            current_sum += current_number;
+            //eq
+            if (eq_len == 0)
+            {
+                eq_len = 1;
+                eq_val = current_number;
+            }
+            eq_len += 1;
+            
+        }
     }
+
+    printf("\ncurrent_number: %d, current_sum: %d, current_length: %d, min: %d, max: %d\n", current_number, current_sum, current_length, min, max);
     previous_number = current_number;
+
 }
