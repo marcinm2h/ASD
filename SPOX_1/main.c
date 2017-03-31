@@ -10,16 +10,15 @@ int previous_number = 0;
 int max = 0;
 int min = 0;
 
-int sum = 0;
 int read_chars = 0;
+int sum = 0;
 int max_length = 0;
 
 int current_sum = 0;
-int current_max_length = 0;
+int current_length = 0;
 
+int eq_len = 1;
 int eq_val = 0;
-int eq_sum = 0;
-int eq_len = 0;
 
 inline int get_next_number();
 inline int algorithm(int current_number);
@@ -31,15 +30,15 @@ int main()
         current_number = get_next_number();
         algorithm(current_number);
 
-        if (current_max_length > max_length)
+        if (current_length > max_length)
         {
-            max_length = current_max_length;
+            max_length = current_length;
             sum = current_sum;
         }
     }
 
-    printf("Sum: %d read_chars: %d max_length: %d current_max_length: %d\n", sum, read_chars, max_length, current_max_length);
-    // printf("%d %d\n%d", max_length, sum, read_chars);
+    // printf("Sum: %d read_chars: %d max_length: %d current_length: %d\n", sum, read_chars, max_length, current_length);
+    printf("%d %d\n%d", max_length, sum, read_chars);
     return 0;
 }
 
@@ -49,8 +48,7 @@ inline int get_next_number()
     current_number = 0;
     while (!is_eol && (input_char = gc()) != ' ')
     {
-        if (input_char == EOL)
-        {
+        if (input_char == EOL) {
             is_eol = 1;
         }
         if (input_char >= '0' && input_char <= '9')
@@ -64,72 +62,99 @@ inline int get_next_number()
 
 inline int algorithm(int current_number)
 {
+    // printf("\ncurrent_number: %d, previous_number: %d\n", current_number, previous_number);
     if (current_number > previous_number)
     {
-        //rosnący
         if (current_number > max)
         {
+            //rosnący
+            min = 0;
             max = current_number;
+            current_length += 1;
             current_sum += current_number;
-            current_max_length += 1;
         }
         else
         {
-            //odwrócenie trendu -> porównać z poprzednią długością ciągu
-            if (current_max_length > max_length)
+            //zmiana trendu
+            if (current_length > max_length)
             {
+                max_length = current_length;
                 sum = current_sum;
-                max_length = current_max_length;
             }
-            //nowy ciąg
-            min = (eq_val < previous_number) ? eq_val : previous_number;
-            max = (eq_val > current_number) ? eq_val : current_number;
-            current_sum = (eq_sum > 0) ? (current_number + eq_sum) : (min + max);
-            current_max_length = (eq_len > 0) ? (1 + eq_len) : 2;
 
-            eq_val = 0;
-            eq_sum = 0;
-            eq_len = 0;
+            //nowy ciąg
+            min = current_number;
+            max = current_number;
+            current_sum = current_number;
+            current_length = 1;
+
+            //dodać eq do current_length i sum
+            if (eq_len > 1)
+            {
+                //doliczenie długości stałego ciągu
+                current_sum += eq_len * eq_val;
+                current_length += eq_len;
+            }
+            else
+            {
+                //doliczenie poprzendiej liczby przy zmianie trendu
+                current_sum += previous_number;
+                current_length += 1;
+                min = previous_number;
+            }
+
         }
+        eq_len = 1;
     }
     else if (current_number < previous_number)
     {
-        //malejący
         if (current_number < min)
         {
+            //malejący
+            max = 0;
             min = current_number;
+            current_length += 1;
             current_sum += current_number;
-            current_max_length += 1;
         }
         else
         {
-            //odwrócenie trendu -> porównać z poprzednią długością ciągu
-            if (current_max_length > max_length)
+            //zmiana trendu
+            if (current_length > max_length)
             {
+                max_length = current_length;
                 sum = current_sum;
-                max_length = current_max_length;
             }
-            //nowy ciąg
-            min = (eq_val < current_number) ? eq_val : current_number;
-            max = (eq_val > previous_number) ? eq_val : previous_number;
-            current_sum = (eq_sum > 0) ? (current_number + eq_sum) : (min + max);
-            current_max_length = (eq_len > 0) ? (1 + eq_len) : 2;
 
-            eq_val = 0;
-            eq_sum = 0;
-            eq_len = 0;
+            //nowy ciąg
+            min = current_number;
+            max = current_number;
+            current_sum = current_number;
+            current_length = 1;
+
+            //dodać eq do current_length i sum
+            if (eq_len)
+            {
+                //doliczenie długości stałego ciągu
+                current_sum += eq_len * eq_val;
+                current_length += eq_len;
+            }
+            else
+            {
+                //doliczenie poprzendiej liczby przy zmianie trendu
+                current_sum += previous_number;
+                current_length += 1;
+                max = previous_number;
+            }
         }
+        eq_len = 1;
     }
     else
     {
-        // prev == curr
-        eq_val = current_number;
-        eq_sum += current_number;
+        //current_number == previous_number
         eq_len += 1;
-
+        eq_val = current_number;
+        current_length += 1;
         current_sum += current_number;
-        current_max_length += 1;
     }
-
     previous_number = current_number;
 }
