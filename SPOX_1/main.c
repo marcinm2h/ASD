@@ -40,8 +40,8 @@ int main()
         }
     }
 
-    // printf("Sum: %d read_chars: %d max_length: %d current_length: %d\n", sum, read_chars, max_length, current_length);
-    printf("%d %d\n%d", max_length, sum, read_chars);
+    printf("Sum: %d read_chars: %d max_length: %d current_length: %d\n", sum, read_chars, max_length, current_length);
+    // printf("%d %d\n%d", max_length, sum, read_chars);
     return 0;
 }
 
