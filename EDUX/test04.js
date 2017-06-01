@@ -142,13 +142,11 @@ const QueueConstruct = (values = []) => {
 }
 const { in: IN, first: FIRST, out: OUT } = Queue;
 
-const queue = QueueConstruct([1,2,3,4]);
+const Q = QueueConstruct([1,2,3,4]);
 
-OUT(IN(queue, FIRST(queue)));
-IN(queue, FIRST(queue));
-OUT(IN(queue, 9));
-FIRST(queue);
-OUT(queue);
-OUT(IN(queue, FIRST(queue)));
-
-// https://github.com/benoitvallon/computer-science-in-javascript/blob/master/data-structures-in-javascript/graph.es6.js
+OUT(IN(Q, FIRST(Q)));
+IN(Q, FIRST(Q));
+OUT(IN(Q, 9));
+FIRST(Q);
+OUT(Q);
+OUT(IN(Q, FIRST(Q)));

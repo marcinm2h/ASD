@@ -1,7 +1,0 @@
--MAKEFILE:
-    *init
-    *build /.vscode folder
-    *mkdir /out
-    *alias cs='gcc SPOX_0/main.c -o out/main && ./out/main';
-
--Delete "//TODO:" comments for spoj
