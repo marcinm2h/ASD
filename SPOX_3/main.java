@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
+import com.sun.corba.se.spi.transport.ReadTimeouts;
+
 public class Main {
     public static void main(String[] args) {
 //        String inputline = null;
@@ -23,10 +25,17 @@ public class Main {
 //        System.out.print("ANSWER");
 
         int verticesNumber = 3; //from stdinput
-        Graph graph = new Graph(verticesNumber);
+        CommunityGraph graph = new CommunityGraph(verticesNumber);
+        // while (stdin != (-1, -1))
         graph.addEdge(0, 1);
         graph.addEdge(1, 2);
         graph.addEdge(0, 2);
+        //endwhile
+        //ustaw punkty startowe / komitety
+        //wybory
+        graph.getVertex(0); //add
+        graph.getVertex(0); //add
+
 
         System.out.println(graph.toString());
 
@@ -34,13 +43,17 @@ public class Main {
 }
 
 class Graph {
-    public LinkedList<Vertex> vertices; //in order - id == position
+    private LinkedList<Vertex> vertices; //in order - id == position
 
     public Graph(int verticesNumber) {
         this.vertices = new LinkedList<>();
         for (int vertexId = 0; vertexId < verticesNumber; vertexId++) {
             addVertex(vertexId);
         }
+    }
+
+    public Vertex getVertex(int vertexId) {
+        return this.vertices.get(vertexId);
     }
 
     public void addVertex(int vertexId) {
@@ -88,4 +101,31 @@ class Vertex {
         }
         return sb.toString();
     }
+}
+
+class CommunityGraph extends Graph {
+    public CommunityGraph(int verticesNumber) {
+        super(verticesNumber);
+    }
+
+    public void addVertex(int vertexId) {
+        Community vertex = new Community(vertexId);
+        this.vertices.add(vertexId, vertex);
+    }
+
+    public Community getCommunity(int communityId) {
+        return (Community)(super.getVertex(communityId));
+    }
+}
+
+class Community extends Vertex {
+    private boolean hasHeadquaters = false;
+    private int hqComitteeId; //sztabId
+    private LinkedList<Integer> committees; //komitety
+
+    public Community(int id) {
+        super(id);
+        this.committees = new LinkedList<>();
+    }
+    
 }
