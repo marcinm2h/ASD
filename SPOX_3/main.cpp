@@ -333,17 +333,17 @@ int main()
             currentCommunityListElement = currentCommunityListElement->nextElement;
         }
 
-
-
         //krok3
         //zwycięzcy wyborów zakładają sztaby
-        for (int i = 0; i < communitiesNumber; i++)
+        currentCommunityListElement = communitiesWithElections->firstElement;
+        while(currentCommunityListElement)
         {
-            Community* community = communities[i];
+            Community* community = currentCommunityListElement->data;
             if (community->hasWinner() && !community->hasHeadquaters)
             {
                 community->setHeadquaters((community->winners[0]), (community->winners[1]));
             }
+            currentCommunityListElement = currentCommunityListElement->nextElement;
         }
     }
 
