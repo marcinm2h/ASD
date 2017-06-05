@@ -328,6 +328,7 @@ int main()
                 neighborListElement = neighborListElement->nextElement;
             }
 
+            fprintf(stdout, "%d, %d \n\n", currentWinners[0]->id, currentWinners[1]->id);
             currentCommunity->setWinners(currentWinners[0], currentWinners[1]);
 
             currentCommunityListElement = currentCommunityListElement->nextElement;
