@@ -264,7 +264,7 @@ int main()
                 for (int j = 0; j < community->neighbors->size; j++)
                 {
                     Community* neighbor = community->neighbors->get(j);
-                    if (!neighbor->hasHeadquaters)
+                    if (!neighbor->hasHeadquaters && !communitiesWithElections->contains(neighbor))
                     {
                         communitiesWithElections->add(neighbor);
                         neighbor->setComittees(candidateA, candidateB);
@@ -286,41 +286,44 @@ int main()
             ListElement<Community>* neighborListElement = neighbors->firstElement;
             int currentMin = -1;
             int currentMax = -1;
-            int currentMinId = 0;
-            int currentMaxId = 0;
+            int currentMinId = -1;
+            int currentMaxId = -1;
+            Community* neighbor;
             //iteracja po sąsiadach miasta w którym są prawybory
             while(neighborListElement)
             {
-                Community* neighbor = neighborListElement->data;
+                neighbor = neighborListElement->data;
 
                 if (neighbor->hasHeadquaters)
                 {
-                    neighbor->headquaters[0]->incrementHqTmpCounter(currentCommunity->id);
-                    neighbor->headquaters[1]->incrementHqTmpCounter(currentCommunity->id);
-                }
+                    Candidate* candidateA = neighbor->headquaters[0];
+                    Candidate* candidateB = neighbor->headquaters[1];
 
-                if (
-                    (currentMin == -1) ||
-                    (neighbor->headquaters[0]->hqTmpCounter < currentMin) ||
-                    ((neighbor->headquaters[0]->hqTmpCounter == currentMin) && (neighbor->headquaters[0]->id > currentMinId))
-                )
-                {
-                    currentMin = neighbor->headquaters[0]->hqTmpCounter;
-                    currentMinId = neighbor->headquaters[0]->id;
-                    currentWinners[0] = neighbor->headquaters[0];
-                }
+                    candidateA->incrementHqTmpCounter(currentCommunity->id);
+                    candidateB->incrementHqTmpCounter(currentCommunity->id);
 
-                if (
-                    (currentMax == -1) ||
-                    (neighbor->headquaters[1]->hqTmpCounter > currentMax) ||
-                    ((neighbor->headquaters[1]->hqTmpCounter == currentMax) && (neighbor->headquaters[1]->id < currentMaxId))
+                    if (
+                        (currentMin == -1) ||
+                        (candidateA->hqTmpCounter < currentMin) ||
+                        ((candidateA->hqTmpCounter == currentMin) && (candidateA->id > currentMinId))
                     )
-                {
-                    currentMax = neighbor->headquaters[1]->hqTmpCounter;
-                    currentMaxId = neighbor->headquaters[1]->id;
-                    currentWinners[1] = neighbor->headquaters[1];
-                }
+                    {
+                        currentMin = candidateA->hqTmpCounter;
+                        currentMinId = candidateA->id;
+                        currentWinners[0] = candidateA;
+                    }
 
+                    if (
+                        (currentMax == -1) ||
+                        (candidateB->hqTmpCounter > currentMax) ||
+                        ((candidateB->hqTmpCounter == currentMax) && (candidateB->id < currentMaxId))
+                        )
+                    {
+                        currentMax = candidateB->hqTmpCounter;
+                        currentMaxId = candidateB->id;
+                        currentWinners[1] = candidateB;
+                    }
+                }
 
                 neighborListElement = neighborListElement->nextElement;
             }
