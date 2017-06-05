@@ -95,11 +95,24 @@ public:
     int id;
     int costA;
     int costB;
+    int hqTmpCounter;
+    int currentCommunityId;
+
+    void incrementHqTmpCounter(int communityId)
+    {
+        if (!this->currentCommunityId == communityId)
+        {
+            this->currentCommunityId = communityId;
+            this->hqTmpCounter = 0;   
+        }
+        this->hqTmpCounter++;
+    }
 
     Candidate(int id)
     {
         this->costA = 0;
         this->costB = 0;
+        this->hqTmpCounter = 0;
         this->id = id;
     }
 };
@@ -115,7 +128,6 @@ public:
 
     bool hasHeadquaters;
     bool hasComittees;
-    bool hasWinner;
 
     void addNeighbor(Community* neighbor) {
         if (!this->neighbors->contains(neighbor))
@@ -144,6 +156,17 @@ public:
         this->comittees[0]->add(candidateA);
         this->comittees[1]->add(candidateB);
         this->hasComittees = true;
+    }
+
+    void setWinners(Candidate* winnerA, Candidate* winnerB)
+    {
+        this->winners[0] = winnerA;
+        this->winners[1] = winnerB;
+    }
+
+    bool hasWinner()
+    {
+        return (this->winners[0] != NULL) || (this-> winners[1] != NULL);
     }
 
     Community(int id)
@@ -225,9 +248,10 @@ int main()
         communities[candidateStartpointId]->setHeadquaters(candidate, candidate);
     }
 
+    List<Community>* communitiesWithElections = new List<Community>;
     while((headquatersNumberA != communitiesNumber) && (headquatersNumberB != communitiesNumber))
     {
-
+        communitiesWithElections->empty();
         //krok 1
         //kandydaci odwiedzają miasta sąsiednie i zakładają komitety
         for (int i = 0; i < communitiesNumber; i++)
@@ -242,6 +266,7 @@ int main()
                     Community* neighbor = community->neighbors->get(j);
                     if (!neighbor->hasHeadquaters)
                     {
+                        communitiesWithElections->add(neighbor);
                         neighbor->setComittees(candidateA, candidateB);
                     }
                 }
@@ -250,13 +275,69 @@ int main()
 
         //krok2
         //prawybory
+        ListElement<Community>* currentCommunityListElement = communitiesWithElections->firstElement;
+        while(currentCommunityListElement)
+        {
+            //prawybory w currentCommunityListElement
+            Community* currentCommunity = currentCommunityListElement->data;
+            Candidate* currentWinners[2];
+
+            List<Community>* neighbors = currentCommunity->neighbors;
+            ListElement<Community>* neighborListElement = neighbors->firstElement;
+            int currentMin = -1;
+            int currentMax = -1;
+            int currentMinId = 0;
+            int currentMaxId = 0;
+            //iteracja po sąsiadach miasta w którym są prawybory
+            while(neighborListElement)
+            {
+                Community* neighbor = neighborListElement->data;
+
+                if (neighbor->hasHeadquaters)
+                {
+                    neighbor->headquaters[0]->incrementHqTmpCounter(currentCommunity->id);
+                    neighbor->headquaters[1]->incrementHqTmpCounter(currentCommunity->id);
+                }
+
+                if (
+                    (currentMin == -1) ||
+                    (neighbor->headquaters[0]->hqTmpCounter < currentMin) ||
+                    ((neighbor->headquaters[0]->hqTmpCounter == currentMin) && (neighbor->headquaters[0]->id > currentMinId))
+                )
+                {
+                    currentMin = neighbor->headquaters[0]->hqTmpCounter;
+                    currentMinId = neighbor->headquaters[0]->id;
+                    currentWinners[0] = neighbor->headquaters[0];
+                }
+
+                if (
+                    (currentMax == -1) ||
+                    (neighbor->headquaters[1]->hqTmpCounter > currentMax) ||
+                    ((neighbor->headquaters[1]->hqTmpCounter == currentMax) && (neighbor->headquaters[1]->id < currentMaxId))
+                    )
+                {
+                    currentMax = neighbor->headquaters[1]->hqTmpCounter;
+                    currentMaxId = neighbor->headquaters[1]->id;
+                    currentWinners[1] = neighbor->headquaters[1];
+                }
+
+
+                neighborListElement = neighborListElement->nextElement;
+            }
+
+            currentCommunity->setWinners(currentWinners[0], currentWinners[1]);
+
+            currentCommunityListElement = currentCommunityListElement->nextElement;
+        }
+
+
 
         //krok3
         //zwycięzcy wyborów zakładają sztaby
         for (int i = 0; i < communitiesNumber; i++)
         {
             Community* community = communities[i];
-            if (community->hasWinner && !community->hasHeadquaters)
+            if (community->hasWinner() && !community->hasHeadquaters)
             {
                 community->setHeadquaters((community->winners[0]), (community->winners[1]));
             }
