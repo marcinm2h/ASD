@@ -1,4 +1,4 @@
-#include<stdio.h>
+#include <stdio.h>
 
 class Community;
 class Candidate;
@@ -44,17 +44,6 @@ public:
         size = 0;
     }
 
-    T* get(int id)
-    {
-        ListElement<T>* tmp = firstElement;
-        for (int i = 0; i < id; i++)
-        {
-            tmp = tmp->nextElement;
-        }
-
-        return tmp->data;
-    }
-
     void add(T* data)
     {
         if (this->firstElement == NULL)
@@ -68,25 +57,6 @@ public:
         size++;
     }
 
-    bool contains(T* data)
-    {
-        ListElement<T>* tmp = firstElement;
-        while(tmp)
-        {
-            if (data == tmp->data)
-            {
-                return true;
-            }
-            tmp = tmp->nextElement;
-        }
-        return false;
-    }
-
-    void empty()
-    {
-        firstElement = NULL;
-        size = 0;
-    }
 };
 
 class Candidate
@@ -95,24 +65,37 @@ public:
     int id;
     int costA;
     int costB;
-    int hqTmpCounter;
-    int currentCommunityId;
+    int hqTmpCounterA;
+    int hqTmpCounterB;
+    int currentCommunityIdA = 0;
+    int currentCommunityIdB = 0;
 
-    void incrementHqTmpCounter(int communityId)
+    void incrementHqTmpCounterA(int communityId)
     {
-        if (!this->currentCommunityId == communityId)
+        if (currentCommunityIdA != communityId)
         {
-            this->currentCommunityId = communityId;
-            this->hqTmpCounter = 0;   
+            currentCommunityIdA = communityId;
+            this->hqTmpCounterA = 0;
         }
-        this->hqTmpCounter++;
+        this->hqTmpCounterA++;
+    }
+
+    void incrementHqTmpCounterB(int communityId)
+    {
+        if (currentCommunityIdB != communityId)
+        {
+            currentCommunityIdB = communityId;
+            this->hqTmpCounterB = 0;
+        }
+        this->hqTmpCounterB++;
     }
 
     Candidate(int id)
     {
         this->costA = 0;
         this->costB = 0;
-        this->hqTmpCounter = 0;
+        this->hqTmpCounterA = 0;
+        this->hqTmpCounterB = 0;
         this->id = id;
     }
 };
@@ -130,10 +113,7 @@ public:
     bool hasComittees;
 
     void addNeighbor(Community* neighbor) {
-        if (!this->neighbors->contains(neighbor))
-        {
-            this->neighbors->add(neighbor);
-        }
+        this->neighbors->add(neighbor);
     }
 
     void setHeadquaters(Candidate* candidateA, Candidate* candidateB)
@@ -148,7 +128,6 @@ public:
         headquatersNumberB++;
 
         this->hasHeadquaters = true;
-        this->hasComittees = false;
     }
 
     void setComittees(Candidate* candidateA, Candidate* candidateB)
@@ -156,6 +135,16 @@ public:
         this->comittees[0]->add(candidateA);
         this->comittees[1]->add(candidateB);
         this->hasComittees = true;
+    }
+
+    void setComitteeA(Candidate* candidateA)
+    {
+        this->comittees[0]->add(candidateA);
+    }
+
+    void setComitteeB(Candidate* candidateB)
+    {
+        this->comittees[1]->add(candidateB);
     }
 
     void setWinners(Candidate* winnerA, Candidate* winnerB)
@@ -248,27 +237,39 @@ int main()
         communities[candidateStartpointId]->setHeadquaters(candidate, candidate);
     }
 
-    List<Community>* communitiesWithElections = new List<Community>;
+    List<Community>* communitiesWithElections;
     while((headquatersNumberA != communitiesNumber) && (headquatersNumberB != communitiesNumber))
     {
-        communitiesWithElections->empty();
+        communitiesWithElections = new List<Community>;
+
         //krok 1
         //kandydaci odwiedzają miasta sąsiednie i zakładają komitety
-        for (int i = 0; i < communitiesNumber; i++)
+        Community* community;
+        List<Community>* neighbors;
+        ListElement<Community>* neighborListElement;
+        Community* neighbor;
+        for(int i = 0; i < communitiesNumber; i++)
         {
-            Community* community = communities[i];
-            if (community->hasHeadquaters)
+            community = communities[i];
+            if(community->hasHeadquaters)
             {
-                Candidate* candidateA = community->headquaters[0];
-                Candidate* candidateB = community->headquaters[1];
-                for (int j = 0; j < community->neighbors->size; j++)
+                neighbors = community->neighbors;
+                neighborListElement = neighbors->firstElement;
+
+                while(neighborListElement)
                 {
-                    Community* neighbor = community->neighbors->get(j);
-                    if (!neighbor->hasHeadquaters && !communitiesWithElections->contains(neighbor))
+                    neighbor = neighborListElement->data;
+                    if(!neighbor->hasHeadquaters)
                     {
-                        communitiesWithElections->add(neighbor);
-                        neighbor->setComittees(candidateA, candidateB);
+                        neighbor->setComitteeA(community->headquaters[0]);
+                        neighbor->setComitteeB(community->headquaters[1]);
+                        if(!(neighbor->hasComittees))
+                        {
+                            neighbor->setComittees(community->headquaters[0], community->headquaters[1]);
+                            communitiesWithElections->add(neighbor);
+                        }
                     }
+                    neighborListElement = neighborListElement->nextElement;
                 }
             }
         }
@@ -276,59 +277,66 @@ int main()
         //krok2
         //prawybory
         ListElement<Community>* currentCommunityListElement = communitiesWithElections->firstElement;
+        Community* currentCommunity;
         while(currentCommunityListElement)
         {
             //prawybory w currentCommunityListElement
-            Community* currentCommunity = currentCommunityListElement->data;
-            Candidate* currentWinners[2];
+            currentCommunity = currentCommunityListElement->data;
 
-            List<Community>* neighbors = currentCommunity->neighbors;
-            ListElement<Community>* neighborListElement = neighbors->firstElement;
-            int currentMin = -1;
-            int currentMax = -1;
-            int currentMinId = -1;
-            int currentMaxId = -1;
-            Community* neighbor;
+            neighbors = currentCommunity->neighbors;
+            neighborListElement = neighbors->firstElement;
             //iteracja po sąsiadach miasta w którym są prawybory
+
             while(neighborListElement)
             {
                 neighbor = neighborListElement->data;
 
-                if (neighbor->hasHeadquaters)
+                if(neighbor->hasHeadquaters)
                 {
-                    Candidate* candidateA = neighbor->headquaters[0];
-                    Candidate* candidateB = neighbor->headquaters[1];
-
-                    candidateA->incrementHqTmpCounter(currentCommunity->id);
-                    candidateB->incrementHqTmpCounter(currentCommunity->id);
-
-                    if (
-                        (currentMin == -1) ||
-                        (candidateA->hqTmpCounter < currentMin) ||
-                        ((candidateA->hqTmpCounter == currentMin) && (candidateA->id > currentMinId))
-                    )
-                    {
-                        currentMin = candidateA->hqTmpCounter;
-                        currentMinId = candidateA->id;
-                        currentWinners[0] = candidateA;
-                    }
-
-                    if (
-                        (currentMax == -1) ||
-                        (candidateB->hqTmpCounter > currentMax) ||
-                        ((candidateB->hqTmpCounter == currentMax) && (candidateB->id < currentMaxId))
-                        )
-                    {
-                        currentMax = candidateB->hqTmpCounter;
-                        currentMaxId = candidateB->id;
-                        currentWinners[1] = candidateB;
-                    }
+                    neighbor->headquaters[0]->incrementHqTmpCounterA(currentCommunity->id);
+                    neighbor->headquaters[1]->incrementHqTmpCounterB(currentCommunity->id);
                 }
 
                 neighborListElement = neighborListElement->nextElement;
             }
 
-            fprintf(stdout, "%d, %d \n\n", currentWinners[0]->id, currentWinners[1]->id);
+            //ustalenie zwycięzców
+            Candidate* currentWinners[2] = { NULL, NULL };
+
+            ListElement<Candidate>* comitteesAListElement = currentCommunity->comittees[0]->firstElement;
+            Candidate* candidateA;
+            while(comitteesAListElement)
+            {
+                candidateA = comitteesAListElement->data;
+                if (
+                        (currentWinners[0] == NULL) ||
+                        (candidateA->hqTmpCounterA < currentWinners[0]->hqTmpCounterA) ||
+                        ((candidateA->hqTmpCounterA == currentWinners[0]->hqTmpCounterA) && (candidateA->id > currentWinners[0]->id))
+                        )
+                {
+                    currentWinners[0] = candidateA;
+                }
+
+                comitteesAListElement = comitteesAListElement->nextElement;
+            }
+            //B
+            ListElement<Candidate>* comitteesBListElement = currentCommunity->comittees[1]->firstElement;
+            Candidate* candidateB;
+            while(comitteesBListElement)
+            {
+                candidateB = comitteesBListElement->data;
+                if (
+                        (currentWinners[1] == NULL) ||
+                        (candidateB->hqTmpCounterB > currentWinners[1]->hqTmpCounterB) ||
+                        ((candidateB->hqTmpCounterB == currentWinners[1]->hqTmpCounterB) && (candidateB->id < currentWinners[1]->id))
+                        )
+                {
+                    currentWinners[1] = candidateB;
+                }
+
+                comitteesBListElement = comitteesBListElement->nextElement;
+            }
+
             currentCommunity->setWinners(currentWinners[0], currentWinners[1]);
 
             currentCommunityListElement = currentCommunityListElement->nextElement;
@@ -339,7 +347,7 @@ int main()
         currentCommunityListElement = communitiesWithElections->firstElement;
         while(currentCommunityListElement)
         {
-            Community* community = currentCommunityListElement->data;
+            community = currentCommunityListElement->data;
             if (community->hasWinner() && !community->hasHeadquaters)
             {
                 community->setHeadquaters((community->winners[0]), (community->winners[1]));
